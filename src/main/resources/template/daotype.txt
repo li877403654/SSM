@@ -1,0 +1,8 @@
+package com.design.module.dao;
+
+import com.design.framework.base.dao.BaseDao;
+import com.design.module.entity.${entity};
+
+public interface ${entity}Dao extends BaseDao<${entity},${id}>{
+	
+}

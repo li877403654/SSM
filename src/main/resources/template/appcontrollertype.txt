@@ -1,0 +1,28 @@
+package com.tongdun.model.controller;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import com.tongdun.model.entity.${entity};
+import com.tongdun.model.service.${entity}Service;
+import com.tongdun.core.base.BaseController;
+
+/**
+ * ${name}
+ * @author John
+ * @datatime ${datatime}
+ */
+@Controller
+@RequestMapping("/app/${entity1}")
+public class ${entity}Controller extends BaseController<${entity}>{
+	
+	@Resource
+	private ${entity}Service ${entity1}Service;
+	
+	@PostConstruct
+	public void initialize() {
+		super.setBaseService(${entity1}Service);
+	}
+	
+}

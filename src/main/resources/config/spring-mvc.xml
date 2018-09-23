@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/jdbc
+    	http://www.springframework.org/schema/tx 
+    	http://www.springframework.org/schema/tx/spring-tx.xsd  
+    	http://www.springframework.org/schema/jdbc/spring-jdbc-4.1.xsd
+        http://www.springframework.org/schema/aop 
+        http://www.springframework.org/schema/aop/spring-aop-4.1.xsd
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-4.1.xsd
+        http://www.springframework.org/schema/tx 
+        http://www.springframework.org/schema/tx/spring-tx-4.1.xsd 
+        http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
+		http://www.springframework.org/schema/task 
+		http://www.springframework.org/schema/task/spring-task-4.1.xsd ">
+        
+        
+    <!-- 定时任务 -->
+    <task:annotation-driven /> 
+    <!-- 对静态资源文件的访问， 将无法mapping到Controller的path交给default servlet handler处理 -->
+    <mvc:default-servlet-handler/>
+    <!-- 静态文件 -->
+    <mvc:resources mapping="/static/**" location="/static/"/>
+   
+    <context:property-placeholder properties-ref="prop" />
+ 	<!-- 使用注解@value获取配置 -->
+    <bean id="prop" class="org.springframework.beans.factory.config.PropertiesFactoryBean" >
+    	<property name="fileEncoding"><value>UTF-8</value></property>
+    	<property name="locations">
+    		<array>
+    			<value>classpath:config/redis.properties</value>
+    		</array>
+    	</property>
+    </bean>
+
+    <!-- 引入同文件夹下的redis属性配置文件 -->
+    <import resource="spring-redis.xml"/>
+    
+    <!-- 使用Annotation自动注册Bean,只扫描@Controller -->
+    <context:annotation-config/>
+
+    <!-- 扫描spring注解 -->
+    <context:component-scan base-package="com.design">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Component"/>
+        <context:include-filter type="annotation" expression="org.springframework.beans.factory.annotation.Autowired"/>
+    </context:component-scan>
+
+
+	
+    <!-- 下载文件 -->
+    <mvc:annotation-driven>
+        <mvc:message-converters register-defaults="true">
+            <!-- 避免IE执行AJAX时,返回JSON出现下载文件 -->
+            <bean id="fastJsonHttpMessageConverter"
+                  class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>application/json;charset=UTF-8</value>
+                    </list>
+                </property>
+                <property name="dateFormat" value="yyyy-MM-dd HH:mm:ss"/>
+                <property name="features">
+                    <list>
+                        <value>WriteMapNullValue</value>
+                        <value>QuoteFieldNames</value>
+                        <value>WriteNullStringAsEmpty</value>
+                        <value>WriteNullListAsEmpty</value>
+                        <value>WriteNullBooleanAsFalse</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+
+    <!-- jsp视图定位 -->
+    <bean id="JSPViewResolver"
+          class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass"
+                  value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="contentType" value="text/html; charset=utf-8"/>
+        <property name="prefix" value="/WEB-INF/view/model/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!-- 上传文件 -->
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 上传文件大小上限，单位为字节 -->
+        <property name="maxUploadSize" value="12097152"></property>
+        <!--resolveLazily属性启用是为了推迟文件解析，以便在UploadController 中捕获文件大小异常-->
+        <property name="resolveLazily" value="true"/>
+        <!-- 请求的编码格式，必须和jSP的pageEncoding属性一致，以便正确读取表单的内容，默认为ISO-8859-1 -->
+        <property name="defaultEncoding" value="UTF-8"></property>
+    </bean>
+
+
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+        <property name="messageConverters">
+            <list>
+                <bean
+                        class="org.springframework.http.converter.ByteArrayHttpMessageConverter"/>
+                <bean
+                        class="org.springframework.http.converter.StringHttpMessageConverter">
+                 		<property name="supportedMediaTypes" value="application/json; charset=UTF-8"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+	<!-- token不过滤路径列表 -->
+	<bean id="tokenNotFilterPathList" class="com.design.framework.bean.TokenNotFilterPathList">
+		<property name="path">
+			<list>
+				<!-- 用户 -->
+				<value>user/login</value>
+				<value>user/register</value>
+				<value>user/visitorLogin</value>
+				<value>user/validatePhone</value>
+				<value>user/sendSMSCodeByRegister</value>
+				<value>user/sendSMSCodeByForgetPassword</value>
+				<value>user/forgetPassword</value>
+				<!-- 异常-->
+				<value>error400</value>
+				<value>error404</value>
+				<value>error405</value>
+				<value>error500</value>
+				<!-- 上传下载-->
+				<value>fileDownload</value>
+				<value>fileUpload</value>
+				<!-- 版本号-->
+				<value>versionExplain/getFirst</value>
+				<!--测试-->
+			</list>
+		</property>
+	</bean>
+	
+	
+	
+	
+    <!-- 拦截器 
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean id="tokenInterceptor" class="com.design.framework.interceptor.TokenInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/*/fileUpload/*"/>
+            <bean id="fileUploadInterceptor" class="com.design.framework.interceptor.FileUploadInterceptor">
+                <property name="maxSize" value="2097152"/>
+            </bean>
+        </mvc:interceptor>
+    </mvc:interceptors>-->
+    
+    <!-- 启动对@AspectJ注解的支持 -->
+    <aop:aspectj-autoproxy/>
+    <!--通知spring使用cglib而不是jdk的来生成代理方法 AOP可以拦截到Controller -->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+    <!-- spring工具类-->
+    <bean id="springContextHolder" class="com.design.framework.utils.SpringContextHolder" lazy-init="false"/>
+   
+
+</beans>

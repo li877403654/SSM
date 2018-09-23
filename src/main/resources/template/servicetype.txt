@@ -1,0 +1,9 @@
+package com.design.module.service;
+
+import com.design.framework.base.service.BaseService;
+import com.design.module.entity.${entity};
+
+public interface ${entity}Service extends BaseService<${entity},${id}> {
+
+
+}

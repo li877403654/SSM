@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.design.module.dao.UserDao">
+	<!-- 实体字段 -->
+	<sql id="userColumms">
+		user.id AS id,
+		user.create_time AS createTime,
+		user.org_id AS orgId,
+		user.user_code AS userCode,
+		user.user_name AS userName,
+		user.user_password AS userPassword,
+		user.user_sex AS userSex,
+		user.user_phone AS userPhone,
+		user.manager_id AS managerId,
+		user.dept_id AS deptId,
+		user.user_mail AS userMail
+	</sql>
+	
+	<!-- where 条件 -->
+	<sql id="where">
+		<where>
+			user.del_flag=0
+			<if test="id!=null and id!=''">
+				and user.id=#{id}
+			</if>
+		</where>
+	</sql>
+	
+	<!--根据ID查找实体 -->
+	<select id="findById"  resultType="user">
+		SELECT 
+			<include refid="userColumms"></include>
+		FROM tm_user_info  user 
+	</select>
+	
+	
+	<!--查询所有数据 -->
+	<select id="findAll"  resultType="user">
+		SELECT 
+			<include refid="userColumms"></include>
+		FROM tm_user_info  user 
+	</select>
+	
+	
+	<!--  根据实体参数获取实体-->
+	<select id="get"  resultType="user">
+		SELECT 
+			<include refid="userColumms"></include>
+		FROM tm_user_info  user 
+		WHERE user.del_flag=0 
+		AND user.id=#{id}
+	</select>
+	
+
+	
+	<!--根据实体获取列表 -->
+	<select id="getList"  resultType="user">
+		SELECT 
+			<include refid="userColumms"></include>
+		FROM tm_user_info  user 
+		<include refid="where"></include>
+	</select>
+	
+	
+	
+	<!-- 获取一个map列表  -->
+	<select id="getListMap"  resultType="java.util.HashMap">
+		SELECT 
+			<include refid="userColumms"></include>
+		FROM tm_user_info  user 
+		<include refid="where"></include>
+	</select>
+	
+	
+	<!-- 分页查询 -->
+	<select id="getListByPage" resultType="user">
+		SELECT 
+			<include refid="userColumms"></include>
+		FROM tm_user_info  user 
+		where 1=1 
+		and   user.del_flag=0 order by ${orderByName}  ${orderBy}   limit ${pageNo},${pageSize}
+	</select>
+	
+	
+	<!-- 获取总数 -->
+	<select id="getTotalCount" resultType="java.lang.Integer">
+		select count(*) FROM  tm_user_info user  where 1=1 and  user.del_flag=0
+	</select>
+	
+	
+	<!-- 新增 -->
+	<insert id="insert" >
+		 insert into tm_user_info (
+		 	id,
+			org_id,
+			user_code,
+			user_name,
+			user_password,
+			user_sex,
+			user_phone,
+			manager_id,
+			dept_id,
+			user_mail,
+		 	del_flag,
+		 	create_time,
+		 	update_time,
+		 	create_id,
+		 	update_id
+		 ) values (
+		 	#{id},
+			#{orgId},
+			#{userCode},
+			#{userName},
+			#{userPassword},
+			#{userSex},
+			#{userPhone},
+			#{managerId},
+			#{deptId},
+			#{userMail},
+		 	#{delFlag},
+		 	#{createTime},
+		 	#{updateTime},
+		 	#{createId},
+		 	#{updateId}
+		 )
+	</insert>
+	
+	<!-- 修改 -->
+	<update id="update" >
+		update tm_user_info  user 
+		<set>
+		update_time=#{updateTime}, 
+			<if test="orgId!=null">org_id=#{orgId},</if>
+			<if test="userCode!=null">user_code=#{userCode},</if>
+			<if test="userName!=null">user_name=#{userName},</if>
+			<if test="userPassword!=null">user_password=#{userPassword},</if>
+			<if test="userSex!=null">user_sex=#{userSex},</if>
+			<if test="userPhone!=null">user_phone=#{userPhone},</if>
+			<if test="managerId!=null">manager_id=#{managerId},</if>
+			<if test="deptId!=null">dept_id=#{deptId},</if>
+			<if test="userMail!=null">user_mail=#{userMail},</if>
+	update_id=#{updateId}
+		</set>
+		where 1=1
+		 	and user.id=#{id}
+		 	and user.del_flag=#{delFlag}
+	</update>
+	
+	
+	
+	<!-- 逻辑删除 -->
+	<update id="delete" >
+		update tm_user_info user
+		<set>
+			  del_flag=1,
+			 <if test="updateTime != null">update_time=#{updateTime},</if>
+			 <if test="updateId != null">update_id=#{updateId},</if>
+		</set>
+		where  user.id=#{id}
+	</update>
+	
+	
+</mapper>

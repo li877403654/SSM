@@ -1,0 +1,24 @@
+package com.design.module.service.impl;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.design.framework.base.service.impl.BaseServiceImpl;
+import com.design.module.dao.${entity}Dao;
+import com.design.module.entity.${entity};
+import com.design.module.service.${entity}Service;
+
+@Service
+public class ${entity}ServiceImpl extends BaseServiceImpl<${entity},${id}> implements ${entity}Service {
+	@Resource
+	private ${entity}Dao ${entity1}Dao;
+	
+	@PostConstruct
+	public void initialize(){
+		super.setBaseDao(${entity1}Dao);
+	}
+
+	
+}

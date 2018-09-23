@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.design.module.dao.${entityName}Dao">
+	<!-- 实体字段 -->
+	<sql id="${entityName1}Columms">
+		${entityName1}.id AS id,
+		${entityName1}.create_time AS createTime,
+${Columms}
+	</sql>
+	
+	<!-- where 条件 -->
+	<sql id="where">
+		<where>
+			${entityName1}.del_flag=0
+			<if test="id!=null and id!=''">
+				and ${entityName1}.id=#{id}
+			</if>
+		</where>
+	</sql>
+	
+	<!--根据ID查找实体 -->
+	<select id="findById"  resultType="${entityName1}">
+		SELECT 
+			<include refid="${entityName1}Columms"></include>
+		FROM ${tableName}  ${entityName1} 
+	</select>
+	
+	
+	<!--查询所有数据 -->
+	<select id="findAll"  resultType="${entityName1}">
+		SELECT 
+			<include refid="${entityName1}Columms"></include>
+		FROM ${tableName}  ${entityName1} 
+	</select>
+	
+	
+	<!--  根据实体参数获取实体-->
+	<select id="get"  resultType="${entityName1}">
+		SELECT 
+			<include refid="${entityName1}Columms"></include>
+		FROM ${tableName}  ${entityName1} 
+		WHERE ${entityName1}.del_flag=0 
+		AND ${entityName1}.id=#{id}
+	</select>
+	
+
+	
+	<!--根据实体获取列表 -->
+	<select id="getList"  resultType="${entityName1}">
+		SELECT 
+			<include refid="${entityName1}Columms"></include>
+		FROM ${tableName}  ${entityName1} 
+		<include refid="where"></include>
+	</select>
+	
+	
+	
+	<!-- 获取一个map列表  -->
+	<select id="getListMap"  resultType="java.util.HashMap">
+		SELECT 
+			<include refid="${entityName1}Columms"></include>
+		FROM ${tableName}  ${entityName1} 
+		<include refid="where"></include>
+	</select>
+	
+	
+	<!-- 分页查询 -->
+	<select id="getListByPage" resultType="${entityName1}">
+		SELECT 
+			<include refid="${entityName1}Columms"></include>
+		FROM ${tableName}  ${entityName1} 
+		where 1=1 
+		and   ${entityName1}.del_flag=0 order by ${orderByName}  ${orderBy}   limit ${pageNo},${pageSize}
+	</select>
+	
+	
+	<!-- 获取总数 -->
+	<select id="getTotalCount" resultType="java.lang.Integer">
+		select count(*) FROM  ${tableName} ${entityName1}  where 1=1 and  ${entityName1}.del_flag=0
+	</select>
+	
+	
+	<!-- 新增 -->
+	<insert id="insert" >
+		 insert into ${tableName} (
+		 	id,
+${insertColumms},
+		 	del_flag,
+		 	create_time,
+		 	update_time,
+		 	create_id,
+		 	update_id
+		 ) values (
+		 	#{id},
+${insertValues},
+		 	#{delFlag},
+		 	#{createTime},
+		 	#{updateTime},
+		 	#{createId},
+		 	#{updateId}
+		 )
+	</insert>
+	
+	<!-- 修改 -->
+	<update id="update" >
+		update ${tableName}  ${entityName1} 
+		<set>
+		update_time=#{updateTime}, 
+${updateColumms}
+	update_id=#{updateId}
+		</set>
+		where 1=1
+		 	and ${entityName1}.id=#{id}
+		 	and ${entityName1}.del_flag=#{delFlag}
+	</update>
+	
+	
+	
+	<!-- 逻辑删除 -->
+	<update id="delete" >
+		update ${tableName} ${entityName1}
+		<set>
+			  del_flag=1,
+			 <if test="updateTime != null">update_time=#{updateTime},</if>
+			 <if test="updateId != null">update_id=#{updateId},</if>
+		</set>
+		where  ${entityName1}.id=#{id}
+	</update>
+	
+	
+</mapper>
